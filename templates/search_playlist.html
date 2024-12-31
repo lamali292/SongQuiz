@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>Songquiz</title>
+    <style>
+        body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 2rem;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #333;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+        .search-box {
+          display: flex;
+          gap: 0.5rem; /* Space between input and button */
+          margin-bottom: 2rem; /* Space between search box and container */
+        }
+
+        .container {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem; /* Space between items */
+          max-width: 600px;
+          margin: 0 auto; /* Center container */
+        }
+
+        .card {
+          display: flex;
+          align-items: center;
+          gap: 1rem; /* Space between image and text */
+          background-color: #f9f9f9;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .image {
+          width: 80px; /* Set size for the image */
+          height: 80px;
+          object-fit: cover;
+          border-radius: 4px;
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .playlist-name {
+          font-size: 1.25rem; /* Larger font for playlist name */
+          font-weight: bold;
+          margin: 0;
+        }
+
+        .author-name {
+          font-size: 0.875rem; /* Smaller font for author name */
+          color: #555;
+          margin: 0;
+        }
+
+        #query {
+          flex: 1;
+          padding: 0.5rem;
+          font-size: 1rem;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<h1>Enter Playlist Query</h1>
+<div class="search-box">
+<input type="text" id="query" placeholder="Enter playlist name">
+<button onclick="getPlaylists()">Search</button>
+</div>
+<div class="container" id="container">
+        <!-- Cards will be injected here -->
+</div>
+
+<script>
+    let playListData = [];
+    function fetchSearchData(query) {
+            fetch('/search_data?query='.concat('', query))
+                .then(response => response.json())
+                .then(data => {
+                    playListData = data;
+                    showPlaylists()
+                })
+                .catch(error => {
+                    console.error('Error searching playlist:', error);
+                });
+    }
+
+    function getPlaylists() {
+        const query = document.getElementById('query').value;
+        fetchSearchData(query)
+        //const encodedQuery = encodeURIComponent(query);
+        //const url = `/get_playlists?playlist_name=${encodedQuery}`;
+        //window.location.href = url;
+    }
+
+    function showPlaylists() {
+        const container = document.getElementById('container')
+        container.innerHTML = '';
+        playListData.forEach((playlist, index) => {
+                const card = document.createElement('a');
+                card.href = `/game?playlist_id=${playlist.id}`
+                card.classList.add('card');
+                card.innerHTML = innerHTML = `
+                <img src=${playlist.image} alt="Image" class="image">
+                <div class="info">
+                    <h2 class="playlist-name">${playlist.name}</h2>
+                    <p class="author-name">${playlist.author}</p>
+                </div>
+            `;
+                container.appendChild(card);
+            }
+        )
+    }
+ </script>
+</body>
+</html>
